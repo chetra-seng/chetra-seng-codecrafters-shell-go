@@ -20,6 +20,12 @@ func main() {
 			fmt.Println("Error reading input", err)
 		}
 
-		fmt.Println(command[:len(command)-1] + ": command not found")
+    user_cmd := command[:len(command)-1]
+
+    if user_cmd == "exit 0" {
+      os.Exit(0)
+    }
+
+		fmt.Println(user_cmd + ": command not found")
 	}
 }
