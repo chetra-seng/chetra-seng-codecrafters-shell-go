@@ -9,9 +9,6 @@ import (
 	"strings"
 )
 
-// Ensures gofmt doesn't remove the "fmt" import in stage 1 (feel free to remove this!)
-var _ = fmt.Fprint
-
 func main() {
 
 	for {
@@ -23,48 +20,66 @@ func main() {
 			fmt.Println("Error reading input", err)
 		}
 
-		user_cmd := command[:len(command)-1]
-
-		cmds := strings.Fields(user_cmd)
+		args := strings.Fields(command[:len(command)-1])
 
 		pathEnv := os.Getenv("PATH")
 		paths := strings.Split(pathEnv, ":")
 
-		switch cmds[0] {
+		switch args[0] {
+
+		// Exit command
 		case "exit":
-			if cmds[1] == "0" {
+			if args[1] == "0" {
 				os.Exit(0)
 			}
-		case "echo":
-			fmt.Println(strings.Join(cmds[1:], " "))
-		case "type":
-			if cmds[1] == "type" || cmds[1] == "exit" || cmds[1] == "echo" {
-				fmt.Printf("%s is a shell builtin\n", cmds[1])
-			} else {
-				found := false
-				for _, path := range paths {
-					exec := filepath.Join(path, cmds[1])
 
-					if _, err := os.Stat(exec); err == nil {
-						fmt.Printf("%s is %s\n", cmds[1], exec)
-						found = true
-						break
-					}
-				}
+		// Print command
+		case "echo":
+			fmt.Println(strings.Join(args[1:], " "))
+
+		// Type command
+		case "type":
+			if isBuiltin(args[1]) {
+				fmt.Printf("%s is a shell builtin\n", args[1])
+			} else {
+				found := isExec(paths, args[1])
 
 				if !found {
-
-					fmt.Printf("%s not found\n", cmds[1])
+					fmt.Printf("%s not found\n", args[1])
 				}
 			}
 		default:
-			cmd := exec.Command(cmds[0], cmds[1:]...)
+			cmd := exec.Command(args[0], args[1:]...)
 			cmd.Stderr = os.Stderr
 			cmd.Stdout = os.Stdout
 			err := cmd.Run()
 			if err != nil {
-				fmt.Printf("%s: command not found\n", cmds[0])
+				fmt.Printf("%s: command not found\n", args[0])
 			}
 		}
 	}
+}
+
+func isBuiltin(cmd string) bool {
+	builtIns := []string{"echo", "type", "exit"}
+
+	for _, c := range builtIns {
+		if cmd == c {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isExec(paths []string, cmd string) bool {
+	for _, path := range paths {
+		execPath := filepath.Join(path, cmd)
+
+		if _, err := os.Stat(execPath); err == nil {
+			fmt.Printf("%s is %s\n", cmd, execPath)
+			return true
+		}
+	}
+	return false
 }
