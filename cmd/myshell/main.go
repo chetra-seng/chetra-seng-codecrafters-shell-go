@@ -37,6 +37,15 @@ func main() {
 		case "echo":
 			fmt.Println(strings.Join(args[1:], " "))
 
+		// Working directory command
+		case "pwd":
+      dir, err := os.Getwd()
+      if err != nil {
+        fmt.Println("Error getting directory")
+      }
+
+			fmt.Println(dir)
+
 		// Type command
 		case "type":
 			if isBuiltin(args[1]) {
@@ -48,6 +57,7 @@ func main() {
 					fmt.Printf("%s not found\n", args[1])
 				}
 			}
+
 		default:
 			cmd := exec.Command(args[0], args[1:]...)
 			cmd.Stderr = os.Stderr
@@ -61,7 +71,7 @@ func main() {
 }
 
 func isBuiltin(cmd string) bool {
-	builtIns := []string{"echo", "type", "exit"}
+	builtIns := []string{"echo", "type", "exit", "pwd"}
 
 	for _, c := range builtIns {
 		if cmd == c {
