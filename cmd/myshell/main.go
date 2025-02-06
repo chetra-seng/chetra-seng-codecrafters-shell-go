@@ -39,10 +39,10 @@ func main() {
 
 		// Working directory command
 		case "pwd":
-      dir, err := os.Getwd()
-      if err != nil {
-        fmt.Println("Error getting directory")
-      }
+			dir, err := os.Getwd()
+			if err != nil {
+				fmt.Println("Error getting directory")
+			}
 
 			fmt.Println(dir)
 
