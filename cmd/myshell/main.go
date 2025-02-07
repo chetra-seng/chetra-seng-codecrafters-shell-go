@@ -46,6 +46,13 @@ func main() {
 
 			fmt.Println(dir)
 
+		// Change directory command
+		case "cd":
+			err := os.Chdir(args[1])
+			if err != nil {
+				fmt.Printf("cd: %s: No such file or directory\n", args[1])
+			}
+
 		// Type command
 		case "type":
 			if isBuiltin(args[1]) {
